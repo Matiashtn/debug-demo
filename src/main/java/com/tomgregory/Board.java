@@ -22,7 +22,7 @@ public class Board {
     }
 
     public boolean isSunk() {
-        return hitCount > BATTLESHIP_LENGTH;
+        return hitCount >= BATTLESHIP_LENGTH;
     }
 
     public void reveal() {
@@ -46,8 +46,15 @@ public class Board {
     }
 
     private void addBattleship() {
-        Point startPoint = randomGridPoint();
-        Point endPoint = calculateEndPoint(startPoint);
+        boolean horizontal = getRandomInteger(2) == 0;
+        Point startPoint = randomGridPoint(horizontal);
+
+        Point endPoint;
+        if (horizontal) {
+            endPoint = getHorizontalEndPoint(startPoint);
+        } else {
+            endPoint = getVerticalEndPoint(startPoint);
+        }
 
         for (int x = startPoint.x; x < endPoint.x + 1; x++) {
             for (int y = startPoint.y; y < endPoint.y + 1; y++) {
@@ -56,12 +63,18 @@ public class Board {
         }
     }
 
-    private Point randomGridPoint() {
-        return new Point(getRandomInteger(grid.length - 1), getRandomInteger(grid.length - 1));
+    private Point randomGridPoint(boolean horizontal) {
+        int startBound = grid.length - BATTLESHIP_LENGTH + 1;
+
+        if (horizontal) {
+            return new Point(getRandomInteger(startBound), getRandomInteger(grid.length));
+        } else {
+            return new Point(getRandomInteger(grid.length), getRandomInteger(startBound));
+        }
     }
 
     private Point calculateEndPoint(Point startPoint) {
-        return switch (getRandomInteger(1)) {
+        return switch (getRandomInteger(2)) {
             case 0 -> getHorizontalEndPoint(startPoint);
             case 1 -> getVerticalEndPoint(startPoint);
             default -> throw new IllegalStateException("Unexpected value.");
